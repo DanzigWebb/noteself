@@ -3,11 +3,13 @@ import { NoteController } from './note.controller';
 import { NoteService } from './note.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Note } from './entity/note.entity';
+import { UserService } from '../user/user.service';
+import { UserModule } from '../user/user.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Note])],
+  imports: [TypeOrmModule.forFeature([Note]), UserModule],
   controllers: [NoteController],
-  providers: [NoteService],
+  providers: [NoteService, UserService],
   exports: [TypeOrmModule],
 })
 export class NoteModule {}

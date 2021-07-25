@@ -18,3 +18,10 @@ export class Note {
   @ManyToOne(() => User, (user) => user.notes)
   user: User;
 }
+
+export interface NoteDto {
+  userId: number;
+  title: string;
+  description: string;
+  subject: string;
+}

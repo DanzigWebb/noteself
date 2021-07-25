@@ -1,35 +1,13 @@
-import {
-  Body,
-  Controller,
-  Get,
-  HttpStatus,
-  Param,
-  Post,
-  Res,
-} from '@nestjs/common';
-import { NoteDto } from './note.dto';
-import { NOTES_MOCKS } from './note.mock';
-import { Response } from 'express';
+import { Body, Controller, Post } from '@nestjs/common';
+import { Note, NoteDto } from './entity/note.entity';
+import { NoteService } from './note.service';
 
 @Controller('note')
 export class NoteController {
+  constructor(private service: NoteService) {}
+
   @Post()
-  create(@Body() noteDto: NoteDto): NoteDto {
-    return noteDto;
-  }
-
-  @Get()
-  getAll(): NoteDto[] {
-    return Object.values(NOTES_MOCKS);
-  }
-
-  @Get(':id')
-  getById(@Param('id') id: string, @Res() res: Response) {
-    const note = NOTES_MOCKS[id];
-    if (note) {
-      res.json(note);
-    } else {
-      res.status(HttpStatus.NOT_FOUND).send();
-    }
+  async create(@Body() n: NoteDto): Promise<Note> {
+    return this.service.create(n);
   }
 }
