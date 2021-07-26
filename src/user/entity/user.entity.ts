@@ -13,6 +13,9 @@ export class User {
   lastName: string;
 
   @Column()
+  password: string;
+
+  @Column()
   phone: string;
 
   @Column()
@@ -28,6 +31,7 @@ export class User {
 export interface UserDto {
   firstName: string;
   lastName: string;
+  password: string;
   email: string;
   phone?: string;
 }

@@ -18,6 +18,6 @@ export class UserController {
 
   @Get(':id')
   async getById(@Param('id') id: string) {
-    return await this.service.findOne(+id);
+    return await this.service.findOneById(+id);
   }
 }

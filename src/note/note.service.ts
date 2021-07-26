@@ -13,7 +13,7 @@ export class NoteService {
   ) {}
 
   async create(n: NoteDto): Promise<Note> {
-    const user = await this.userService.findOne(n.userId);
+    const user = await this.userService.findOneById(n.userId);
 
     if (user) {
       const note = new Note();

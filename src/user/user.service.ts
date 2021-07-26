@@ -14,6 +14,7 @@ export class UserService {
     const user = new User();
     user.firstName = u.firstName;
     user.lastName = u.lastName;
+    user.password = u.password;
     user.email = u.email;
     user.phone = u.phone;
 
@@ -26,8 +27,16 @@ export class UserService {
     return this.usersRepository.find();
   }
 
-  findOne(id: number): Promise<User> {
+  findOneById(id: number): Promise<User> {
     return this.usersRepository.findOne(id);
+  }
+
+  findOneByName(name: string): Promise<User> {
+    return this.usersRepository.findOne({
+      where: {
+        firstName: name,
+      },
+    });
   }
 
   async remove(id: string): Promise<void> {
