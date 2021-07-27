@@ -25,15 +25,16 @@ export class NoteController {
   @UseGuards(JwtAuthGuard)
   @Get()
   async getList(@Request() req): Promise<Note[]> {
-    const id = req.user.id;
-    return await this.service.getListById(id);
+    const userId = req.user.id;
+    return await this.service.getListById(userId);
   }
 
   @UseGuards(JwtAuthGuard)
   @Get(':id')
   async getOne(@Request() req, @Param('id') id: string) {
     try {
-      return await this.service.getOne(req.user.id, +id);
+      const userId = req.user.id;
+      return await this.service.getOne(userId, +id);
     } catch (e) {
       throw e;
     }
