@@ -27,8 +27,7 @@ export class NoteService {
     note.user = user;
 
     const entity = this.noteRepository.create(note);
-    await this.noteRepository.save(entity);
-    return note;
+    return await this.noteRepository.save(entity);
   }
 
   async getOne(userId: number, noteId: number): Promise<Note | null> {
