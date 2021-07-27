@@ -1,5 +1,6 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Note } from '../../note/entity/note.entity';
+import { NoteSubject } from '../../subject/entity/subject.entity';
 
 @Entity()
 export class User {
@@ -26,6 +27,9 @@ export class User {
 
   @OneToMany(() => Note, (note) => note.user)
   notes: Note[];
+
+  @OneToMany(() => NoteSubject, (subject) => subject.user)
+  subjects: NoteSubject[];
 
   getInfo(): UserInfoDto {
     return {
