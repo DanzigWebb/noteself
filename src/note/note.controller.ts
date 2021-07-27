@@ -2,6 +2,9 @@ import {
   Body,
   Controller,
   Get,
+  HttpException,
+  HttpStatus,
+  Param,
   Post,
   Put,
   Request,
@@ -15,8 +18,9 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 export class NoteController {
   constructor(private service: NoteService) {}
 
+  @UseGuards(JwtAuthGuard)
   @Post()
-  async create(@Body() n: NoteDto): Promise<Note> {
+  async create(@Request() req, @Body() n: NoteDto): Promise<Note> {
     return this.service.create(n);
   }
 
@@ -25,6 +29,20 @@ export class NoteController {
   async getList(@Request() req): Promise<Note[]> {
     const id = req.user.id;
     return await this.service.getListById(id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get(':id')
+  async getOne(@Request() req, @Param('id') id: string) {
+    const note = await this.service.getOne(req.user.id, +id);
+    if (note) {
+      return note;
+    } else {
+      throw new HttpException(
+        `Not found Note with id: ${id}`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
   }
 
   // Todo: создать проверку на автора заметки

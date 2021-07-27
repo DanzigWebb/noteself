@@ -3,6 +3,7 @@ import { UserService } from '../user/user.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Note, NoteDto } from './entity/note.entity';
+import { User } from '../user/entity/user.entity';
 
 @Injectable()
 export class NoteService {
@@ -28,8 +29,17 @@ export class NoteService {
     }
   }
 
-  async getListById(id: number): Promise<Note[]> {
-    const user = await this.userService.findOneById(id);
+  async getOne(userId: number, noteId: number): Promise<Note | null> {
+    const user = await this.getUserById(userId);
+    const note = await this.noteRepository.findOne({
+      where: { id: noteId, user },
+    });
+
+    return note || null;
+  }
+
+  async getListById(userId: number): Promise<Note[]> {
+    const user = await this.getUserById(userId);
     return await this.noteRepository.find({
       where: { user },
     });
@@ -40,5 +50,9 @@ export class NoteService {
     Object.assign(note, newValue);
     await this.noteRepository.save(note);
     return note;
+  }
+
+  private async getUserById(id: number): Promise<User> {
+    return await this.userService.findOneById(id);
   }
 }
