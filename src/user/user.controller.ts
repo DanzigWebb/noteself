@@ -2,6 +2,8 @@ import {
   Body,
   Controller,
   Get,
+  HttpException,
+  HttpStatus,
   Post,
   Request,
   UseGuards,
@@ -15,8 +17,20 @@ export class UserController {
   constructor(private service: UserService) {}
 
   @Post()
-  async create(@Body() u: UserDto): Promise<User> {
-    return await this.service.create(u);
+  async create(@Body() u: UserDto): Promise<UserInfoDto> {
+    const user: User = await this.service.findOneByEmail(u.email);
+    if (user) {
+      throw this.createException(
+        `User with email ${u.email} already has`,
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    const newUser = await this.service.create(u);
+    return newUser.getInfo();
+  }
+
+  createException(error: string, status: HttpStatus): HttpException {
+    return new HttpException({ status, error }, status);
   }
 
   @UseGuards(JwtAuthGuard)
