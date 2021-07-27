@@ -20,7 +20,6 @@ export class Note {
 }
 
 export interface NoteDto {
-  userId: number;
   title: string;
   description: string;
   subject: string;

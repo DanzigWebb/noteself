@@ -18,8 +18,13 @@ export class NoteController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  async create(@Request() req, @Body() n: NoteDto): Promise<Note> {
-    return this.service.create(n);
+  async create(@Request() req, @Body() dto: NoteDto): Promise<Note> {
+    try {
+      const userId = req.user.id;
+      return this.service.create(userId, dto);
+    } catch (e) {
+      throw e;
+    }
   }
 
   @UseGuards(JwtAuthGuard)

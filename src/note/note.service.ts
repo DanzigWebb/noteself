@@ -13,20 +13,22 @@ export class NoteService {
     private userService: UserService,
   ) {}
 
-  async create(n: NoteDto): Promise<Note> {
-    const user = await this.userService.findOneById(n.userId);
+  async create(userId: number, n: NoteDto): Promise<Note> {
+    const user = await this.userService.findOneById(userId);
 
-    if (user) {
-      const note = new Note();
-      note.title = n.title;
-      note.description = n.description;
-      note.subject = n.subject;
-      note.user = user;
-
-      const entity = this.noteRepository.create(note);
-      await this.noteRepository.save(entity);
-      return note;
+    if (!user) {
+      throw new HttpException(`User not found`, HttpStatus.NOT_FOUND);
     }
+
+    const note = new Note();
+    note.title = n.title;
+    note.description = n.description;
+    note.subject = n.subject;
+    note.user = user;
+
+    const entity = this.noteRepository.create(note);
+    await this.noteRepository.save(entity);
+    return note;
   }
 
   async getOne(userId: number, noteId: number): Promise<Note | null> {
