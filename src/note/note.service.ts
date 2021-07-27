@@ -27,4 +27,11 @@ export class NoteService {
       return note;
     }
   }
+
+  async getListById(id: number): Promise<Note[]> {
+    const user = await this.userService.findOneById(id);
+    return await this.noteRepository.find({
+      where: { user },
+    });
+  }
 }
