@@ -29,10 +29,6 @@ export class UserController {
     return newUser.getInfo();
   }
 
-  createException(error: string, status: HttpStatus): HttpException {
-    return new HttpException({ status, error }, status);
-  }
-
   @UseGuards(JwtAuthGuard)
   @Get()
   async getAll() {
@@ -44,7 +40,15 @@ export class UserController {
   @Get('profile')
   async getProfile(@Request() req): Promise<UserInfoDto | null> {
     const user = await this.service.findOneById(req.user.id);
-    return user.getInfo();
+    if (user) {
+      return user.getInfo();
+    } else {
+      throw this.createException('Not Found', HttpStatus.NOT_FOUND);
+    }
+  }
+
+  createException(error: string, status: HttpStatus): HttpException {
+    return new HttpException({ status, error }, status);
   }
 
   // @Get(':id')
