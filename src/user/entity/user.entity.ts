@@ -26,12 +26,30 @@ export class User {
 
   @OneToMany(() => Note, (note) => note.user)
   notes: Note[];
+
+  getInfo(): UserInfoDto {
+    return {
+      id: this.id,
+      firstName: this.firstName,
+      lastName: this.lastName,
+      email: this.email,
+      phone: this.phone,
+    };
+  }
 }
 
 export interface UserDto {
   firstName: string;
   lastName: string;
   password: string;
+  email: string;
+  phone?: string;
+}
+
+export interface UserInfoDto {
+  id: number;
+  firstName: string;
+  lastName: string;
   email: string;
   phone?: string;
 }
