@@ -17,8 +17,6 @@ export class NoteSubject {
 }
 
 export interface SubjectDto {
-  id: number;
   title: string;
   description: string;
-  user: User;
 }
