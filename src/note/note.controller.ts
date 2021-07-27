@@ -2,8 +2,6 @@ import {
   Body,
   Controller,
   Get,
-  HttpException,
-  HttpStatus,
   Param,
   Post,
   Put,
@@ -34,14 +32,10 @@ export class NoteController {
   @UseGuards(JwtAuthGuard)
   @Get(':id')
   async getOne(@Request() req, @Param('id') id: string) {
-    const note = await this.service.getOne(req.user.id, +id);
-    if (note) {
-      return note;
-    } else {
-      throw new HttpException(
-        `Not found Note with id: ${id}`,
-        HttpStatus.NOT_FOUND,
-      );
+    try {
+      return await this.service.getOne(req.user.id, +id);
+    } catch (e) {
+      throw e;
     }
   }
 

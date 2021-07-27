@@ -35,7 +35,14 @@ export class NoteService {
       where: { id: noteId, user },
     });
 
-    return note || null;
+    if (!note) {
+      throw new HttpException(
+        `Not found Note with id: ${noteId}`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return note;
   }
 
   async getListById(userId: number): Promise<Note[]> {
