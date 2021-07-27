@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Request, UseGuards } from "@nestjs/common";
 import { SubjectService } from './subject.service';
 import { NoteSubject, SubjectDto } from './entity/subject.entity';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -10,7 +10,33 @@ export class SubjectController {
   @UseGuards(JwtAuthGuard)
   @Post()
   async create(@Request() req, @Body() dto: SubjectDto): Promise<NoteSubject> {
-    const userId = req.user.id;
-    return this.service.create(userId, dto);
+    try {
+      const userId = req.user.id;
+      return this.service.create(userId, dto);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get(':id')
+  async getOne(@Request() req, @Param('id') id: string) {
+    try {
+      const userId = req.user.id;
+      return await this.service.getOne(userId, +id);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get()
+  async getList(@Request() req): Promise<NoteSubject[]> {
+    try {
+      const userId = req.user.id;
+      return await this.service.getListById(userId);
+    } catch (e) {
+      throw e;
+    }
   }
 }
