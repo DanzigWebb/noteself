@@ -45,12 +45,18 @@ export class NoteController {
     }
   }
 
-  // Todo: создать проверку на автора заметки
   @UseGuards(JwtAuthGuard)
-  @Put()
-  async update(@Body() body: any): Promise<Note> {
-    const id: number = body.id;
-    const dto: NoteDto = body.note;
-    return await this.service.updateByID(id, dto);
+  @Put(':id')
+  async update(
+    @Request() req,
+    @Body() dto: NoteDto,
+    @Param('id') noteId: string,
+  ): Promise<Note> {
+    try {
+      const userId = req.user.id;
+      return await this.service.updateByID(userId, +noteId, dto);
+    } catch (e) {
+      throw e;
+    }
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -45,9 +45,22 @@ export class NoteService {
     });
   }
 
-  async updateByID(id: number, newValue: NoteDto): Promise<Note> {
-    const note = await this.noteRepository.findOne({ where: { id } });
-    Object.assign(note, newValue);
+  async updateByID(
+    userId: number,
+    noteId: number,
+    dto: NoteDto,
+  ): Promise<Note> {
+    const user = await this.getUserById(userId);
+    const note = await this.noteRepository.findOne({
+      where: { id: noteId, user },
+    });
+
+    if (!note) {
+      const message = `Not found Note with id: ${noteId}`;
+      throw new HttpException(message, HttpStatus.NOT_FOUND);
+    }
+
+    Object.assign(note, dto);
     await this.noteRepository.save(note);
     return note;
   }
