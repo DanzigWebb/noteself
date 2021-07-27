@@ -34,4 +34,11 @@ export class NoteService {
       where: { user },
     });
   }
+
+  async updateByID(id: number, newValue: NoteDto): Promise<Note> {
+    const note = await this.noteRepository.findOne({ where: { id } });
+    Object.assign(note, newValue);
+    await this.noteRepository.save(note);
+    return note;
+  }
 }

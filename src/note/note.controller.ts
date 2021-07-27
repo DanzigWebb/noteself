@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Post,
+  Put,
   Request,
   UseGuards,
 } from '@nestjs/common';
@@ -24,5 +25,14 @@ export class NoteController {
   async getList(@Request() req): Promise<Note[]> {
     const id = req.user.id;
     return await this.service.getListById(id);
+  }
+
+  // Todo: создать проверку на автора заметки
+  @UseGuards(JwtAuthGuard)
+  @Put()
+  async update(@Body() body: any): Promise<Note> {
+    const id: number = body.id;
+    const dto: NoteDto = body.note;
+    return await this.service.updateByID(id, dto);
   }
 }
