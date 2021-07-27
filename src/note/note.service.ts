@@ -14,7 +14,7 @@ export class NoteService {
   ) {}
 
   async create(userId: number, n: NoteDto): Promise<Note> {
-    const user = await this.userService.findOneById(userId);
+    const user = await this.getUserById(userId);
 
     if (!user) {
       throw new HttpException(`User not found`, HttpStatus.NOT_FOUND);
