@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Param,
   Post,
   Put,
   Request,
@@ -15,24 +16,47 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 export class NoteController {
   constructor(private service: NoteService) {}
 
+  @UseGuards(JwtAuthGuard)
   @Post()
-  async create(@Body() n: NoteDto): Promise<Note> {
-    return this.service.create(n);
+  async create(@Request() req, @Body() dto: NoteDto): Promise<Note> {
+    try {
+      const userId = req.user.id;
+      return this.service.create(userId, dto);
+    } catch (e) {
+      throw e;
+    }
   }
 
   @UseGuards(JwtAuthGuard)
   @Get()
   async getList(@Request() req): Promise<Note[]> {
-    const id = req.user.id;
-    return await this.service.getListById(id);
+    const userId = req.user.id;
+    return await this.service.getListById(userId);
   }
 
-  // Todo: создать проверку на автора заметки
   @UseGuards(JwtAuthGuard)
-  @Put()
-  async update(@Body() body: any): Promise<Note> {
-    const id: number = body.id;
-    const dto: NoteDto = body.note;
-    return await this.service.updateByID(id, dto);
+  @Get(':id')
+  async getOne(@Request() req, @Param('id') id: string) {
+    try {
+      const userId = req.user.id;
+      return await this.service.getOne(userId, +id);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Put(':id')
+  async update(
+    @Request() req,
+    @Body() dto: NoteDto,
+    @Param('id') noteId: string,
+  ): Promise<Note> {
+    try {
+      const userId = req.user.id;
+      return await this.service.updateByID(userId, +noteId, dto);
+    } catch (e) {
+      throw e;
+    }
   }
 }
