@@ -50,6 +50,22 @@ export class SubjectService {
     });
   }
 
+  async updateById(userId: number, subjectId: number, dto: SubjectDto) {
+    const user = await this.getUserById(userId);
+    const subject = await this.subjectRepository.findOne({
+      where: { id: subjectId, user },
+    });
+
+    if (!subject) {
+      const message = `Not found Subject with id: ${subjectId}`;
+      throw new HttpException(message, HttpStatus.NOT_FOUND);
+    }
+
+    Object.assign(subject, dto);
+    await this.subjectRepository.save(subject);
+    return subject;
+  }
+
   private async getUserById(id: number): Promise<User> {
     return await this.userService.findOneById(id);
   }

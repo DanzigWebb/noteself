@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Request, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, Put, Request, UseGuards } from "@nestjs/common";
 import { SubjectService } from './subject.service';
 import { NoteSubject, SubjectDto } from './entity/subject.entity';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -38,5 +38,15 @@ export class SubjectController {
     } catch (e) {
       throw e;
     }
+  }
+  @UseGuards(JwtAuthGuard)
+  @Put(':id')
+  async update(
+    @Request() req,
+    @Body() dto: SubjectDto,
+    @Param('id') subjectId: string,
+  ): Promise<NoteSubject> {
+    const userId = req.user.id;
+    return await this.service.updateById(userId, +subjectId, dto);
   }
 }
