@@ -1,4 +1,14 @@
-import { Body, Controller, Get, Param, Post, Put, Request, UseGuards } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Delete,
+  Get, HttpStatus,
+  Param,
+  Post,
+  Put,
+  Request,
+  UseGuards
+} from "@nestjs/common";
 import { SubjectService } from './subject.service';
 import { NoteSubject, SubjectDto } from './entity/subject.entity';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -48,5 +58,19 @@ export class SubjectController {
   ): Promise<NoteSubject> {
     const userId = req.user.id;
     return await this.service.updateById(userId, +subjectId, dto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id')
+  async remove(
+    @Request() req,
+    @Param('id') subjectId: string,
+  ): Promise<{ message: string; subject: NoteSubject }> {
+    const userId = req.user.id;
+    const removedSubject = await this.service.deleteById(userId, +subjectId);
+    return {
+      message: `Subject was deleted successfully`,
+      subject: removedSubject,
+    };
   }
 }

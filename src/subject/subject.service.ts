@@ -50,7 +50,11 @@ export class SubjectService {
     });
   }
 
-  async updateById(userId: number, subjectId: number, dto: SubjectDto) {
+  async updateById(
+    userId: number,
+    subjectId: number,
+    dto: SubjectDto,
+  ): Promise<NoteSubject> {
     const user = await this.getUserById(userId);
     const subject = await this.subjectRepository.findOne({
       where: { id: subjectId, user },
@@ -63,6 +67,21 @@ export class SubjectService {
 
     Object.assign(subject, dto);
     await this.subjectRepository.save(subject);
+    return subject;
+  }
+
+  async deleteById(userId: number, subjectId: number): Promise<NoteSubject> {
+    const user = await this.getUserById(userId);
+    const subject = await this.subjectRepository.findOne({
+      where: { id: subjectId, user },
+    });
+
+    if (!subject) {
+      const message = `Not found Subject with id: ${subjectId}`;
+      throw new HttpException(message, HttpStatus.NOT_FOUND);
+    }
+
+    await this.subjectRepository.delete(subject);
     return subject;
   }
 
