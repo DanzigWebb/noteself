@@ -2,13 +2,13 @@ import {
   Body,
   Controller,
   Delete,
-  Get, HttpStatus,
+  Get,
   Param,
   Post,
   Put,
   Request,
-  UseGuards
-} from "@nestjs/common";
+  UseGuards,
+} from '@nestjs/common';
 import { SubjectService } from './subject.service';
 import { NoteSubject, SubjectDto } from './entity/subject.entity';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -20,34 +20,22 @@ export class SubjectController {
   @UseGuards(JwtAuthGuard)
   @Post()
   async create(@Request() req, @Body() dto: SubjectDto): Promise<NoteSubject> {
-    try {
-      const userId = req.user.id;
-      return this.service.create(userId, dto);
-    } catch (e) {
-      throw e;
-    }
+    const userId = req.user.id;
+    return this.service.create(userId, dto);
   }
 
   @UseGuards(JwtAuthGuard)
   @Get(':id')
   async getOne(@Request() req, @Param('id') id: string) {
-    try {
-      const userId = req.user.id;
-      return await this.service.getOne(userId, +id);
-    } catch (e) {
-      throw e;
-    }
+    const userId = req.user.id;
+    return await this.service.getOne(userId, +id);
   }
 
   @UseGuards(JwtAuthGuard)
   @Get()
   async getList(@Request() req): Promise<NoteSubject[]> {
-    try {
-      const userId = req.user.id;
-      return await this.service.getListById(userId);
-    } catch (e) {
-      throw e;
-    }
+    const userId = req.user.id;
+    return await this.service.getListById(userId);
   }
   @UseGuards(JwtAuthGuard)
   @Put(':id')
