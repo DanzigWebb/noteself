@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   Request,
   UseGuards,
 } from '@nestjs/common';
@@ -33,10 +34,14 @@ export class SubjectController {
 
   @UseGuards(JwtAuthGuard)
   @Get()
-  async getList(@Request() req): Promise<NoteSubject[]> {
+  async getList(@Request() req, @Query() query): Promise<NoteSubject[]> {
     const userId = req.user.id;
+    if (query.q) {
+      return await this.service.querySubject(userId, query.q);
+    }
     return await this.service.getListById(userId);
   }
+
   @UseGuards(JwtAuthGuard)
   @Put(':id')
   async update(

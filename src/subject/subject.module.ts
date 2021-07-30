@@ -5,9 +5,15 @@ import { UserModule } from '../user/user.module';
 import { SubjectService } from './subject.service';
 import { SubjectController } from './subject.controller';
 import { NoteModule } from '../note/note.module';
+import { QueryParams } from '../utils/query-params';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([NoteSubject]), UserModule, NoteModule],
+  imports: [
+    TypeOrmModule.forFeature([NoteSubject]),
+    UserModule,
+    NoteModule,
+    QueryParams,
+  ],
   exports: [TypeOrmModule],
   providers: [SubjectService],
   controllers: [SubjectController],

@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 
 import { NoteSubject, SubjectDto } from './entity/subject.entity';
 import { User } from '../user/entity/user.entity';
@@ -83,6 +83,23 @@ export class SubjectService {
 
     await this.subjectRepository.delete(subject);
     return subject;
+  }
+
+  async querySubject(userId: number, query: string): Promise<NoteSubject[]> {
+    const user = await this.getUserById(userId);
+    const subjects = await this.subjectRepository.find({
+      where: [
+        {
+          title: Like(`%${query}%`),
+          user,
+        },
+        {
+          description: Like(`%${query}%`),
+          user,
+        },
+      ],
+    });
+    return subjects;
   }
 
   private async getUserById(id: number): Promise<User> {
