@@ -15,3 +15,8 @@ export class NoteSubject {
   @ManyToOne(() => User, (user) => user.subjects)
   user: User;
 }
+
+export interface SubjectDto {
+  title: string;
+  description: string;
+}
