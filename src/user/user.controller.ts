@@ -2,13 +2,11 @@ import {
   Body,
   Controller,
   Get,
-  HttpException,
-  HttpStatus,
   Post,
   Request,
   UseGuards,
 } from '@nestjs/common';
-import { User, UserDto, UserInfoDto } from './entity/user.entity';
+import { UserDto, UserInfoDto } from './entity/user.entity';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
@@ -18,15 +16,8 @@ export class UserController {
 
   @Post()
   async create(@Body() u: UserDto): Promise<UserInfoDto> {
-    const user: User = await this.service.findOneByEmail(u.email);
-    if (user) {
-      throw this.createException(
-        `User with email ${u.email} already has`,
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    const newUser = await this.service.create(u);
-    return newUser.getInfo();
+    const user = await this.service.create(u);
+    return user.getInfo();
   }
 
   @UseGuards(JwtAuthGuard)
@@ -35,20 +26,11 @@ export class UserController {
     return await this.service.findAll();
   }
 
-  // Todo: вывести в контролеер profile.controller
   @UseGuards(JwtAuthGuard)
   @Get('profile')
-  async getProfile(@Request() req): Promise<UserInfoDto | null> {
+  async getProfile(@Request() req): Promise<UserInfoDto> {
     const user = await this.service.findOneById(req.user.id);
-    if (user) {
-      return user.getInfo();
-    } else {
-      throw this.createException('Not Found', HttpStatus.NOT_FOUND);
-    }
-  }
-
-  createException(error: string, status: HttpStatus): HttpException {
-    return new HttpException({ status, error }, status);
+    return user.getInfo();
   }
 
   // @Get(':id')
