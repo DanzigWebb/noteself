@@ -17,7 +17,7 @@ import { NoteSubject } from './subject/entity/subject.entity';
       type: 'postgres',
       host: 'localhost',
       port: 5432,
-      username: 'aamarc26',
+      username: 'noteself',
       password: '',
       database: 'noteself',
       entities: [User, Note, NoteSubject],
