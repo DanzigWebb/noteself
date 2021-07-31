@@ -11,6 +11,7 @@ import {
 import { Note, NoteDto } from './entity/note.entity';
 import { NoteService } from './note.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { QueryParams } from '../utils/query-params';
 
 @Controller('note')
 export class NoteController {
@@ -27,7 +28,8 @@ export class NoteController {
   @Get()
   async getList(@Request() req): Promise<Note[]> {
     const userId = req.user.id;
-    return await this.service.getListById(userId);
+    const queryParams = new QueryParams(req.query);
+    return await this.service.getListById(userId, queryParams);
   }
 
   @UseGuards(JwtAuthGuard)

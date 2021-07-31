@@ -1,9 +1,10 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { Note, NoteDto } from './entity/note.entity';
 import { User } from '../user/entity/user.entity';
+import { QueryParams } from '../utils/query-params';
 
 @Injectable()
 export class NoteService {
@@ -46,10 +47,29 @@ export class NoteService {
     return note;
   }
 
-  async getListById(userId: number): Promise<Note[]> {
+  async getListById(userId: number, queryParams: QueryParams): Promise<Note[]> {
     const user = await this.getUserById(userId);
+
+    const search = queryParams.q;
+    // если параметр не был передан, то возвращаем все subjects этого пользователя
+    if (!search) {
+      return await this.noteRepository.find({
+        where: { user },
+      });
+    }
+    // если параметр передан возвращаем только совпадения по title и description
+    // TODO: добавить параметры сортировки
     return await this.noteRepository.find({
-      where: { user },
+      where: [
+        {
+          title: Like(`%${search}%`),
+          user,
+        },
+        {
+          description: Like(`%${search}%`),
+          user,
+        },
+      ],
     });
   }
 
