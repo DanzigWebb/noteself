@@ -13,6 +13,7 @@ import {
 import { SubjectService } from './subject.service';
 import { NoteSubject, SubjectDto } from './entity/subject.entity';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { QueryParams } from '../utils/query-params';
 
 @Controller('subject')
 export class SubjectController {
@@ -34,12 +35,10 @@ export class SubjectController {
 
   @UseGuards(JwtAuthGuard)
   @Get()
-  async getList(@Request() req, @Query() query): Promise<NoteSubject[]> {
+  async querySubject(@Request() req): Promise<NoteSubject[]> {
     const userId = req.user.id;
-    if (query.q) {
-      return await this.service.querySubject(userId, query.q);
-    }
-    return await this.service.getListById(userId);
+    const queryParams = new QueryParams(req.query);
+    return await this.service.querySubject(userId, queryParams);
   }
 
   @UseGuards(JwtAuthGuard)

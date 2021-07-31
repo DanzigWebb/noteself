@@ -1,9 +1,15 @@
-import { Injectable } from '@nestjs/common';
-
-@Injectable()
 export class QueryParams {
-  constructor() {}
-  getQuery(q) {
-    return q;
+  readonly params;
+  constructor(query) {
+    this.params = query;
+  }
+  get q() {
+    return this.params.q;
+  }
+  get something() {
+    return this.params.something;
+  }
+  getParamByName(param: string) {
+    return this.params[param];
   }
 }
