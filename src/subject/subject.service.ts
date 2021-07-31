@@ -91,24 +91,25 @@ export class SubjectService {
     queryParams: QueryParams,
   ): Promise<NoteSubject[]> {
     const user = await this.getUserById(userId);
-    const query = queryParams.q;
+    const search = queryParams.q;
 
     // если параметр не был передан, то возвращаем все subjects этого пользователя
-    if (!query) {
+    if (!search) {
       return await this.subjectRepository.find({
         where: { user },
       });
     }
     // если параметр передан возвращаем только совпадения по title и description
     // TODO: добавить параметры сортировки
+    // TODO: возможно мы захотим искать не только по subject, но и по notes
     return await this.subjectRepository.find({
       where: [
         {
-          title: Like(`%${query}%`),
+          title: Like(`%${search}%`),
           user,
         },
         {
-          description: Like(`%${query}%`),
+          description: Like(`%${search}%`),
           user,
         },
       ],
