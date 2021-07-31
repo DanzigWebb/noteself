@@ -21,11 +21,11 @@ export class UserService {
     }
 
     const user = new User();
-    user.firstName = u.firstName;
-    user.lastName = u.lastName;
-    user.password = u.password;
-    user.email = u.email;
-    user.phone = u.phone;
+    user.firstName = dto.firstName;
+    user.lastName = dto.lastName;
+    user.password = dto.password;
+    user.email = dto.email;
+    user.phone = dto.phone;
 
     const entity = this.usersRepository.create(user);
     await this.usersRepository.save(entity);
