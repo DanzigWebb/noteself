@@ -19,12 +19,8 @@ export class NoteController {
   @UseGuards(JwtAuthGuard)
   @Post()
   async create(@Request() req, @Body() dto: NoteDto): Promise<Note> {
-    try {
-      const userId = req.user.id;
-      return this.service.create(userId, dto);
-    } catch (e) {
-      throw e;
-    }
+    const userId = req.user.id;
+    return this.service.create(userId, dto);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -37,12 +33,8 @@ export class NoteController {
   @UseGuards(JwtAuthGuard)
   @Get(':id')
   async getOne(@Request() req, @Param('id') id: string) {
-    try {
-      const userId = req.user.id;
-      return await this.service.getOne(userId, +id);
-    } catch (e) {
-      throw e;
-    }
+    const userId = req.user.id;
+    return await this.service.getOne(userId, +id);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -52,11 +44,7 @@ export class NoteController {
     @Body() dto: NoteDto,
     @Param('id') noteId: string,
   ): Promise<Note> {
-    try {
-      const userId = req.user.id;
-      return await this.service.updateByID(userId, +noteId, dto);
-    } catch (e) {
-      throw e;
-    }
+    const userId = req.user.id;
+    return await this.service.updateByID(userId, +noteId, dto);
   }
 }
