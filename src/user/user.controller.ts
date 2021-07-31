@@ -3,12 +3,14 @@ import {
   Controller,
   Get,
   Post,
+  Query,
   Request,
   UseGuards,
 } from '@nestjs/common';
 import { UserDto, UserInfoDto } from './entity/user.entity';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { QueryParams } from '../utils/query-params';
 
 @Controller('user')
 export class UserController {
@@ -22,8 +24,9 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard)
   @Get()
-  async getAll() {
-    return await this.service.findAll();
+  async getAll(@Query() query) {
+    const queryParams = new QueryParams(query);
+    return await this.service.findAll(queryParams);
   }
 
   @UseGuards(JwtAuthGuard)

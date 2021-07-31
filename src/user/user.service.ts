@@ -1,7 +1,8 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User, UserDto } from './entity/user.entity';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
+import { QueryParams } from '../utils/query-params';
 
 @Injectable()
 export class UserService {
@@ -32,8 +33,18 @@ export class UserService {
     return user;
   }
 
-  findAll(): Promise<User[]> {
-    return this.usersRepository.find();
+  findAll(queryParams: QueryParams): Promise<User[]> {
+    const search = queryParams.q;
+    if (!search) {
+      return this.usersRepository.find();
+    }
+    return this.usersRepository.find({
+      where: [
+        { firstName: Like(`%${search}%`) },
+        { lastName: Like(`%${search}%`) },
+        { email: Like(`%${search}%`) },
+      ],
+    });
   }
 
   async findOneById(id: number): Promise<User> {
