@@ -44,13 +44,6 @@ export class SubjectService {
     return subject;
   }
 
-  async getListById(userId: number): Promise<NoteSubject[]> {
-    const user = await this.getUserById(userId);
-    return await this.subjectRepository.find({
-      where: { user },
-    });
-  }
-
   async updateById(
     userId: number,
     subjectId: number,
