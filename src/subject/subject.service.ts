@@ -5,7 +5,7 @@ import { Like, Repository } from 'typeorm';
 
 import { NoteSubject, SubjectDto } from './entity/subject.entity';
 import { User } from '../user/entity/user.entity';
-import { QueryParams } from '../utils/query-params';
+import { QueryParamsList } from '../utils/query-params';
 
 @Injectable()
 export class SubjectService {
@@ -79,12 +79,12 @@ export class SubjectService {
     return subject;
   }
 
-  async querySubject(
+  async getList(
     userId: number,
-    queryParams: QueryParams,
+    queryParams: QueryParamsList,
   ): Promise<NoteSubject[]> {
     const user = await this.getUserById(userId);
-    const search = queryParams.q;
+    const search = queryParams.params.search;
 
     // если параметр не был передан, то возвращаем все subjects этого пользователя
     if (!search) {
@@ -94,7 +94,6 @@ export class SubjectService {
     }
     // если параметр передан возвращаем только совпадения по title и description
     // TODO: добавить параметры сортировки
-    // TODO: возможно мы захотим искать не только по subject, но и по notes
     return await this.subjectRepository.find({
       where: [
         {

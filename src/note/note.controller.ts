@@ -5,13 +5,14 @@ import {
   Param,
   Post,
   Put,
+  Query,
   Request,
   UseGuards,
 } from '@nestjs/common';
 import { Note, NoteDto } from './entity/note.entity';
 import { NoteService } from './note.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { QueryParams } from '../utils/query-params';
+import { ParamsList, QueryParamsList } from '../utils/query-params';
 
 @Controller('note')
 export class NoteController {
@@ -26,9 +27,12 @@ export class NoteController {
 
   @UseGuards(JwtAuthGuard)
   @Get()
-  async getList(@Request() req): Promise<Note[]> {
+  async getList(
+    @Request() req,
+    @Query() query: Record<ParamsList, string>,
+  ): Promise<Note[]> {
     const userId = req.user.id;
-    const queryParams = new QueryParams(req.query);
+    const queryParams = new QueryParamsList(query);
     return await this.service.getListById(userId, queryParams);
   }
 
