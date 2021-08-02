@@ -1,7 +1,8 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User, UserDto } from './entity/user.entity';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
+import { QueryParamsList } from '../utils/query-params';
 
 @Injectable()
 export class UserService {
@@ -32,8 +33,18 @@ export class UserService {
     return user;
   }
 
-  findAll(): Promise<User[]> {
-    return this.usersRepository.find();
+  findAll(queryParams: QueryParamsList): Promise<User[]> {
+    const search = queryParams.params.search;
+    if (!search) {
+      return this.usersRepository.find();
+    }
+    return this.usersRepository.find({
+      where: [
+        { firstName: Like(`%${search}%`) },
+        { lastName: Like(`%${search}%`) },
+        { email: Like(`%${search}%`) },
+      ],
+    });
   }
 
   async findOneById(id: number): Promise<User> {
@@ -41,7 +52,6 @@ export class UserService {
     if (!user) {
       throw UserService.createException('Not Found', HttpStatus.NOT_FOUND);
     }
-
     return user;
   }
 

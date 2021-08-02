@@ -1,10 +1,11 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 
 import { NoteSubject, SubjectDto } from './entity/subject.entity';
 import { User } from '../user/entity/user.entity';
+import { QueryParamsList } from '../utils/query-params';
 
 @Injectable()
 export class SubjectService {
@@ -43,13 +44,6 @@ export class SubjectService {
     return subject;
   }
 
-  async getListById(userId: number): Promise<NoteSubject[]> {
-    const user = await this.getUserById(userId);
-    return await this.subjectRepository.find({
-      where: { user },
-    });
-  }
-
   async updateById(
     userId: number,
     subjectId: number,
@@ -83,6 +77,35 @@ export class SubjectService {
 
     await this.subjectRepository.delete(subject);
     return subject;
+  }
+
+  async getList(
+    userId: number,
+    queryParams: QueryParamsList,
+  ): Promise<NoteSubject[]> {
+    const user = await this.getUserById(userId);
+    const search = queryParams.params.search;
+
+    // если параметр не был передан, то возвращаем все subjects этого пользователя
+    if (!search) {
+      return await this.subjectRepository.find({
+        where: { user },
+      });
+    }
+    // если параметр передан возвращаем только совпадения по title и description
+    // TODO: добавить параметры сортировки
+    return await this.subjectRepository.find({
+      where: [
+        {
+          title: Like(`%${search}%`),
+          user,
+        },
+        {
+          description: Like(`%${search}%`),
+          user,
+        },
+      ],
+    });
   }
 
   private async getUserById(id: number): Promise<User> {
