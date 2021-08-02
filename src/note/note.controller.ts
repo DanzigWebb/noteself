@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -46,5 +47,19 @@ export class NoteController {
   ): Promise<Note> {
     const userId = req.user.id;
     return await this.service.updateByID(userId, +noteId, dto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id')
+  async remove(
+    @Request() req,
+    @Param('id') noteId: string,
+  ): Promise<{ message: string; note: Note }> {
+    const userId = req.user.id;
+    const removedNote = await this.service.deleteById(userId, +noteId);
+    return {
+      message: 'Note was deleted successfully',
+      note: removedNote,
+    };
   }
 }

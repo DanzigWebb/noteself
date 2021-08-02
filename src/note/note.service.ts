@@ -76,4 +76,18 @@ export class NoteService {
   private async getUserById(id: number): Promise<User> {
     return await this.userService.findOneById(id);
   }
+  async deleteById(userId: number, noteId: number): Promise<Note> {
+    const user = await this.getUserById(userId);
+    const note = await this.noteRepository.findOne({
+      where: { id: noteId, user },
+    });
+
+    if (!note) {
+      const message = `Not found Note with id: ${noteId}`;
+      throw new HttpException(message, HttpStatus.NOT_FOUND);
+    }
+
+    await this.noteRepository.delete(note);
+    return note;
+  }
 }
