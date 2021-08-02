@@ -40,7 +40,7 @@ export class UserController {
   async remove(
     @Request() req,
     @Param('id') userId: string,
-  ): Promise<{ message: string; user: UserDto }> {
+  ): Promise<{ message: string; user: UserInfoDto }> {
     const removedUser = await this.service.deleteById(+userId);
     return {
       message: 'User was deleted successfully',

@@ -36,6 +36,7 @@ export class UserService {
     return this.usersRepository.find();
   }
 
+  //fixme: поправить вывод, чтобы он соответствовал интерфейсу UserInfoDto
   async findOneById(id: number): Promise<User> {
     const user = await this.usersRepository.findOne(id);
     if (!user) {
@@ -81,7 +82,7 @@ export class UserService {
     }
 
     // обработка ошибок, если у пользователя есть какие-либо заметки
-    // FIXME: 1) Добавить подобный обработчик для subject note. 2) Возможно тут мы не хотим выводить ошибку, а вызывать deleteById для всех вложенных элементов
+    // FIXME: 1) Добавить подобный обработчик для subjectNote. 2) Возможно тут мы не хотим выводить ошибку, а вызывать deleteById для всех вложенных элементов
     try {
       await this.usersRepository.delete(userId);
     } catch (e) {
