@@ -1,7 +1,9 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  Param,
   Post,
   Request,
   UseGuards,
@@ -31,6 +33,19 @@ export class UserController {
   async getProfile(@Request() req): Promise<UserInfoDto> {
     const user = await this.service.findOneById(req.user.id);
     return user.getInfo();
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id')
+  async remove(
+    @Request() req,
+    @Param('id') userId: string,
+  ): Promise<{ message: string; user: UserDto }> {
+    const removedUser = await this.service.deleteById(+userId);
+    return {
+      message: 'User was deleted successfully',
+      user: removedUser,
+    };
   }
 
   // @Get(':id')
