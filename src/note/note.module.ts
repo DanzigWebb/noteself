@@ -9,6 +9,6 @@ import { UserModule } from '../user/user.module';
   imports: [TypeOrmModule.forFeature([Note]), UserModule],
   controllers: [NoteController],
   providers: [NoteService],
-  exports: [TypeOrmModule, NoteService],
+  exports: [TypeOrmModule],
 })
 export class NoteModule {}
