@@ -87,10 +87,17 @@ export class SubjectService {
     const search = queryParams.params.search;
 
     // если параметр не был передан, то возвращаем все subjects этого пользователя
+    const sortParams = queryParams.createSort(queryParams.params.sort);
     if (!search) {
-      return await this.subjectRepository.find({
+      return this.subjectRepository
+        .createQueryBuilder()
+        .where({ user })
+        .orderBy(sortParams.sort, sortParams.order)
+        .getMany();
+
+      /*return await this.subjectRepository.find({
         where: { user },
-      });
+      });*/
     }
     // если параметр передан возвращаем только совпадения по title и description
     // TODO: добавить параметры сортировки
