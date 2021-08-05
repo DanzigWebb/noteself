@@ -15,7 +15,9 @@ export class Note {
   @Column()
   subject: string;
 
-  @ManyToOne(() => User, (user) => user.notes)
+  @ManyToOne(() => User, (user) => user.notes, {
+    onDelete: 'CASCADE',
+  })
   user: User;
 }
 

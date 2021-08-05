@@ -12,7 +12,9 @@ export class NoteSubject {
   @Column()
   description: string;
 
-  @ManyToOne(() => User, (user) => user.subjects)
+  @ManyToOne(() => User, (user) => user.subjects, {
+    onDelete: 'CASCADE',
+  })
   user: User;
 }
 

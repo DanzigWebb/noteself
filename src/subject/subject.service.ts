@@ -81,7 +81,14 @@ export class SubjectService {
       throw new HttpException(message, HttpStatus.NOT_FOUND);
     }
 
-    await this.subjectRepository.delete(subject);
+    try {
+      await this.subjectRepository.delete(subject);
+    } catch (e) {
+      throw new HttpException(
+        `Couldn't delete the subject: ${e.message}`,
+        HttpStatus.FORBIDDEN,
+      );
+    }
     return subject;
   }
 

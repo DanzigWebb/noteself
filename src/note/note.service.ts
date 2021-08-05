@@ -87,7 +87,14 @@ export class NoteService {
       throw new HttpException(message, HttpStatus.NOT_FOUND);
     }
 
-    await this.noteRepository.delete(note);
+    try {
+      await this.noteRepository.delete(note);
+    } catch (e) {
+      throw new HttpException(
+        `Couldn't delete the note: ${e.message}`,
+        HttpStatus.FORBIDDEN,
+      );
+    }
     return note;
   }
 }

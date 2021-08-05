@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User, UserDto } from './entity/user.entity';
-import { QueryFailedError, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class UserService {
@@ -81,17 +81,13 @@ export class UserService {
       );
     }
 
-    // обработка ошибок, если у пользователя есть какие-либо заметки
-    // FIXME: 1) Добавить подобный обработчик для subjectNote. 2) Возможно тут мы не хотим выводить ошибку, а вызывать deleteById для всех вложенных элементов
     try {
       await this.usersRepository.delete(userId);
     } catch (e) {
-      if (e instanceof QueryFailedError) {
-        throw new HttpException(
-          `Couldn't delete the user: ${e.message}`,
-          HttpStatus.FORBIDDEN,
-        );
-      }
+      throw new HttpException(
+        `Couldn't delete the user: ${e.message}`,
+        HttpStatus.FORBIDDEN,
+      );
     }
     return user;
   }
