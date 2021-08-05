@@ -1,4 +1,11 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { Note } from '../../note/entity/note.entity';
 import { NoteSubject } from '../../subject/entity/subject.entity';
 
@@ -30,6 +37,12 @@ export class User {
 
   @OneToMany(() => NoteSubject, (subject) => subject.user)
   subjects: NoteSubject[];
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 
   getInfo(): UserInfoDto {
     return {
