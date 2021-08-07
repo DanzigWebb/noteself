@@ -32,10 +32,14 @@ export class User {
   @Column({ default: true })
   isActive: boolean;
 
-  @OneToMany(() => Note, (note) => note.user)
+  @OneToMany(() => Note, (note) => note.user, {
+    cascade: true,
+  })
   notes: Note[];
 
-  @OneToMany(() => NoteSubject, (subject) => subject.user)
+  @OneToMany(() => NoteSubject, (subject) => subject.user, {
+    cascade: true,
+  })
   subjects: NoteSubject[];
 
   @CreateDateColumn()

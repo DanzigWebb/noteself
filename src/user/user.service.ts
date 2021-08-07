@@ -47,6 +47,7 @@ export class UserService {
     });
   }
 
+  //fixme: поправить вывод, чтобы он соответствовал интерфейсу UserInfoDto
   async findOneById(id: number): Promise<User> {
     const user = await this.usersRepository.findOne(id);
     if (!user) {
@@ -78,5 +79,26 @@ export class UserService {
     status: HttpStatus,
   ): HttpException {
     return new HttpException({ status, error }, status);
+  }
+
+  async deleteById(userId: number): Promise<User> {
+    const user = await this.findOneById(userId);
+
+    if (!user) {
+      throw new HttpException(
+        `Not found User with id: ${userId}`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    try {
+      await this.usersRepository.delete(userId);
+    } catch (e) {
+      throw new HttpException(
+        `Couldn't delete the user: ${e.message}`,
+        HttpStatus.FORBIDDEN,
+      );
+    }
+    return user;
   }
 }

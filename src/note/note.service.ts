@@ -99,4 +99,25 @@ export class NoteService {
   private async getUserById(id: number): Promise<User> {
     return await this.userService.findOneById(id);
   }
+  async deleteById(userId: number, noteId: number): Promise<Note> {
+    const user = await this.getUserById(userId);
+    const note = await this.noteRepository.findOne({
+      where: { id: noteId, user },
+    });
+
+    if (!note) {
+      const message = `Not found Note with id: ${noteId}`;
+      throw new HttpException(message, HttpStatus.NOT_FOUND);
+    }
+
+    try {
+      await this.noteRepository.delete(note);
+    } catch (e) {
+      throw new HttpException(
+        `Couldn't delete the note: ${e.message}`,
+        HttpStatus.FORBIDDEN,
+      );
+    }
+    return note;
+  }
 }
