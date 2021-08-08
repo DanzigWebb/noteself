@@ -84,35 +84,35 @@ export class SubjectService {
     queryParams: QueryParamsList,
   ): Promise<NoteSubject[]> {
     const user = await this.getUserById(userId);
-    const search = queryParams.params.search;
 
-    // если параметр не был передан, то возвращаем все subjects этого пользователя
-    const sortParams = queryParams.createSort(queryParams.params.sort);
-    if (!search) {
-      return this.subjectRepository
-        .createQueryBuilder()
-        .where({ user })
-        .orderBy(sortParams.sort, sortParams.order)
-        .getMany();
+    const search = queryParams.params.search || '';
+    const sort = queryParams.createSort(queryParams.params.sort);
+    const order = queryParams.createOrder(queryParams.params.order);
 
-      /*return await this.subjectRepository.find({
-        where: { user },
-      });*/
+    let result;
+    try {
+      result = await this.subjectRepository.find({
+        where: [
+          {
+            title: Like(`%${search}%`),
+            user,
+          },
+          {
+            description: Like(`%${search}%`),
+            user,
+          },
+        ],
+        order: {
+          [sort]: order,
+        },
+      });
+    } catch (e) {
+      throw new HttpException(
+        `Couldn't get a list of Subjects: ${e.message}`,
+        HttpStatus.BAD_REQUEST,
+      );
     }
-    // если параметр передан возвращаем только совпадения по title и description
-    // TODO: добавить параметры сортировки
-    return await this.subjectRepository.find({
-      where: [
-        {
-          title: Like(`%${search}%`),
-          user,
-        },
-        {
-          description: Like(`%${search}%`),
-          user,
-        },
-      ],
-    });
+    return result;
   }
 
   private async getUserById(id: number): Promise<User> {

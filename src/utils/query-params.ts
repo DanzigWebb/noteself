@@ -2,6 +2,7 @@
 enum enumParamsList {
   search = 'q', // internal_name = url_name
   sort = 's',
+  order = 'o',
 }
 // enum для листа сущностей
 enum enumParamsSingle {
@@ -34,23 +35,29 @@ export class QueryParamsList extends QueryParams {
       this.params[enumKey] = queryParams[enumParamsList[enumKey]];
     }
   }
+
   // fixme: сейчас тут хардпривязка к столбцам БД
-  createSort(paramSort: string): { sort: string; order: 'ASC' | 'DESC' } {
-    switch (paramSort) {
-      case 'za':
-        return { sort: 'title', order: 'DESC' };
-      case 'upd':
-        return { sort: 'updateAt', order: 'ASC' };
-      case 'upd-d':
-        return { sort: 'updateAt', order: 'DESC' };
-      case 'create':
-        return { sort: 'createAt', order: 'ASC' };
-      case 'create-d':
-        return { sort: 'createAt', order: 'DESC' };
-      case 'az':
-      default:
-        return { sort: 'title', order: 'ASC' };
+  createSort(paramSort: string): string {
+    if (typeof paramSort !== 'undefined') {
+      paramSort = paramSort.toUpperCase();
     }
+    switch (paramSort) {
+      case 'NAME':
+        return 'firstName';
+      case 'TITLE':
+        return 'title';
+      case 'UPDATE':
+        return 'updateAt';
+      default:
+      case 'CREATE':
+        return 'createAt';
+    }
+  }
+  createOrder(order: string): 'ASC' | 'DESC' {
+    if (typeof order !== 'undefined') {
+      order = order.toUpperCase();
+    }
+    return order === 'DESC' ? 'DESC' : 'ASC';
   }
 }
 export class QueryParamsSingle extends QueryParams {

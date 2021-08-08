@@ -52,28 +52,34 @@ export class NoteService {
     queryParams: QueryParamsList,
   ): Promise<Note[]> {
     const user = await this.getUserById(userId);
+    const sort = queryParams.createSort(queryParams.params.sort);
+    const order = queryParams.createOrder(queryParams.params.order);
+    const search = queryParams.params.search || '';
 
-    const search = queryParams.params.search;
-    // если параметр не был передан, то возвращаем все subjects этого пользователя
-    if (!search) {
-      return await this.noteRepository.find({
-        where: { user },
+    let result: Note[];
+    try {
+      result = await this.noteRepository.find({
+        where: [
+          {
+            title: Like(`%${search}%`),
+            user,
+          },
+          {
+            description: Like(`%${search}%`),
+            user,
+          },
+        ],
+        order: {
+          [sort]: order,
+        },
       });
+    } catch (e) {
+      throw new HttpException(
+        `Couldn't get a list of Notes: ${e.message}`,
+        HttpStatus.BAD_REQUEST,
+      );
     }
-    // если параметр передан возвращаем только совпадения по title и description
-    // TODO: добавить параметры сортировки
-    return await this.noteRepository.find({
-      where: [
-        {
-          title: Like(`%${search}%`),
-          user,
-        },
-        {
-          description: Like(`%${search}%`),
-          user,
-        },
-      ],
-    });
+    return result;
   }
 
   async updateByID(

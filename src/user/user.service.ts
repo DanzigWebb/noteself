@@ -33,18 +33,31 @@ export class UserService {
     return user;
   }
 
-  findAll(queryParams: QueryParamsList): Promise<User[]> {
-    const search = queryParams.params.search;
-    if (!search) {
-      return this.usersRepository.find();
+  async findAll(queryParams: QueryParamsList): Promise<User[]> {
+    const search = queryParams.params.search || '';
+    const sort = queryParams.createSort(queryParams.params.sort);
+    const order = queryParams.createOrder(queryParams.params.order);
+
+    let result: User[];
+    try {
+      result = await this.usersRepository.find({
+        where: [
+          { firstName: Like(`%${search}%`) },
+          { lastName: Like(`%${search}%`) },
+          { email: Like(`%${search}%`) },
+        ],
+        order: {
+          [sort]: order,
+        },
+      });
+    } catch (e) {
+      throw UserService.createException(
+        `Couldn't get a list of users: ${e.message}`,
+        HttpStatus.BAD_REQUEST,
+      );
     }
-    return this.usersRepository.find({
-      where: [
-        { firstName: Like(`%${search}%`) },
-        { lastName: Like(`%${search}%`) },
-        { email: Like(`%${search}%`) },
-      ],
-    });
+
+    return result;
   }
 
   async findOneById(id: number): Promise<User> {
