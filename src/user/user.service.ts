@@ -92,7 +92,8 @@ export class UserService {
     }
 
     try {
-      await this.usersRepository.delete(userId);
+      const { affected } = await this.usersRepository.delete(userId);
+      UserService.checkAffected(affected);
     } catch (e) {
       throw new HttpException(
         `Couldn't delete the user: ${e.message}`,
@@ -100,5 +101,11 @@ export class UserService {
       );
     }
     return user;
+  }
+
+  static checkAffected(affected: number) {
+    if (!affected) {
+      throw Error(`The row(-s) hasn't changed`);
+    }
   }
 }
