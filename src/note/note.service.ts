@@ -5,6 +5,8 @@ import { Like, Repository } from 'typeorm';
 import { Note, NoteDto } from './entity/note.entity';
 import { User } from '../user/entity/user.entity';
 import { QueryParamsList } from '../utils/query-params';
+import { NoteSubject } from '../subject/entity/subject.entity';
+import { SubjectService } from '../subject/subject.service';
 
 @Injectable()
 export class NoteService {
@@ -12,10 +14,15 @@ export class NoteService {
     @InjectRepository(Note)
     private noteRepository: Repository<Note>,
     private userService: UserService,
+    private subjectService: SubjectService,
   ) {}
 
   async create(userId: number, n: NoteDto): Promise<Note> {
     const user = await this.getUserById(userId);
+    let subject: NoteSubject = null;
+    if (n.subject) {
+      subject = await this.getSubjectById(userId, +n.subject);
+    }
 
     if (!user) {
       throw new HttpException(`User not found`, HttpStatus.NOT_FOUND);
@@ -24,7 +31,7 @@ export class NoteService {
     const note = new Note();
     note.title = n.title;
     note.description = n.description;
-    note.subject = n.subject;
+    note.subject = subject;
     note.user = user;
 
     const entity = this.noteRepository.create(note);
@@ -98,6 +105,12 @@ export class NoteService {
 
   private async getUserById(id: number): Promise<User> {
     return await this.userService.findOneById(id);
+  }
+  private async getSubjectById(
+    userId: number,
+    subjectId: number,
+  ): Promise<NoteSubject> {
+    return await this.subjectService.getOne(userId, subjectId);
   }
   async deleteById(userId: number, noteId: number): Promise<Note> {
     const user = await this.getUserById(userId);
