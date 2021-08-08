@@ -38,9 +38,10 @@ export class NoteService {
     return await this.noteRepository.save(entity);
   }
 
-  async getOne(userId: number, noteId: number): Promise<Note | null> {
+  async getOne(userId: number, noteId: number): Promise<NoteDto> {
     const user = await this.getUserById(userId);
     const note = await this.noteRepository.findOne({
+      relations: ['subject'],
       where: { id: noteId, user },
     });
 
@@ -51,7 +52,12 @@ export class NoteService {
       );
     }
 
-    return note;
+    return {
+      id: note.id,
+      title: note.title,
+      subject: note.subject,
+      description: note.description,
+    };
   }
 
   async getListById(

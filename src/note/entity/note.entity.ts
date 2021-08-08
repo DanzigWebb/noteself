@@ -36,7 +36,8 @@ export class Note {
 }
 
 export interface NoteDto {
+  id: number;
   title: string;
   description: string;
-  subject: string;
+  subject: NoteSubject;
 }
