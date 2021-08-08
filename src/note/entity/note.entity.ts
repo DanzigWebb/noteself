@@ -28,10 +28,10 @@ export class Note {
   user: User;
 
   @CreateDateColumn()
-  createAt: Date;
+  createdAt: Date;
 
   @UpdateDateColumn()
-  updateAt: Date;
+  updatedAt: Date;
 }
 
 export interface NoteDto {

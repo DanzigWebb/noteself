@@ -43,10 +43,10 @@ export class User {
   subjects: NoteSubject[];
 
   @CreateDateColumn()
-  createAt: Date;
+  createdAt: Date;
 
   @UpdateDateColumn()
-  updateAt: Date;
+  updatedAt: Date;
 
   getInfo(): UserInfoDto {
     return {

@@ -47,10 +47,10 @@ export class QueryParamsList extends QueryParams {
       case 'TITLE':
         return 'title';
       case 'UPDATE':
-        return 'updateAt';
-      default:
+        return 'updatedAt';
       case 'CREATE':
-        return 'createAt';
+      default:
+        return 'createdAt';
     }
   }
   createOrder(order: string): 'ASC' | 'DESC' {

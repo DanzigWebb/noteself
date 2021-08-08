@@ -25,10 +25,10 @@ export class NoteSubject {
   user: User;
 
   @CreateDateColumn()
-  createAt: Date;
+  createdAt: Date;
 
   @UpdateDateColumn()
-  updateAt: Date;
+  updatedAt: Date;
 }
 
 export interface SubjectDto {
