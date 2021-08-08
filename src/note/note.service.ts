@@ -111,7 +111,7 @@ export class NoteService {
     }
 
     try {
-      await this.noteRepository.delete(note);
+      await this.noteRepository.delete(note.id);
     } catch (e) {
       throw new HttpException(
         `Couldn't delete the note: ${e.message}`,

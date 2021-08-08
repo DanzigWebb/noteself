@@ -76,7 +76,8 @@ export class SubjectService {
     }
 
     try {
-      await this.subjectRepository.delete(subject);
+      const a = await this.subjectRepository.delete(subject.id);
+      console.log(a);
     } catch (e) {
       throw new HttpException(
         `Couldn't delete the subject: ${e.message}`,
