@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Like, Repository } from 'typeorm';
 import { Note, NoteDto } from './entity/note.entity';
 import { User } from '../user/entity/user.entity';
-import { QueryParamsList } from '../utils/query-params';
+import { QueryParamsList, NoteQueryParams } from '../utils/query-params';
 import { NoteSubject } from '../subject/entity/subject.entity';
 import { SubjectService } from '../subject/subject.service';
 
@@ -62,31 +62,39 @@ export class NoteService {
 
   async getListById(
     userId: number,
-    queryParams: QueryParamsList,
+    queryParamsList: QueryParamsList,
+    noteQueryParams: NoteQueryParams,
   ): Promise<Note[]> {
     const user = await this.getUserById(userId);
+    // const sort = queryParams.createSort(queryParams.params.sort);
+    const sort = noteQueryParams.createSort(queryParamsList.params.sort);
+    const order = queryParamsList.createOrder(queryParamsList.params.order);
+    const search = queryParamsList.params.search || '';
 
-    const search = queryParams.params.search;
-    // если параметр не был передан, то возвращаем все subjects этого пользователя
-    if (!search) {
-      return await this.noteRepository.find({
-        where: { user },
+    let result: Note[];
+    try {
+      result = await this.noteRepository.find({
+        where: [
+          {
+            title: Like(`%${search}%`),
+            user,
+          },
+          {
+            description: Like(`%${search}%`),
+            user,
+          },
+        ],
+        order: {
+          [sort]: order,
+        },
       });
+    } catch (e) {
+      throw new HttpException(
+        `Couldn't get a list of Notes: ${e.message}`,
+        HttpStatus.BAD_REQUEST,
+      );
     }
-    // если параметр передан возвращаем только совпадения по title и description
-    // TODO: добавить параметры сортировки
-    return await this.noteRepository.find({
-      where: [
-        {
-          title: Like(`%${search}%`),
-          user,
-        },
-        {
-          description: Like(`%${search}%`),
-          user,
-        },
-      ],
-    });
+    return result;
   }
 
   async updateByID(
@@ -130,11 +138,12 @@ export class NoteService {
     }
 
     try {
-      await this.noteRepository.delete(note);
+      const { affected } = await this.noteRepository.delete(note.id);
+      UserService.checkAffected(affected);
     } catch (e) {
       throw new HttpException(
         `Couldn't delete the note: ${e.message}`,
-        HttpStatus.FORBIDDEN,
+        HttpStatus.BAD_REQUEST,
       );
     }
     return note;

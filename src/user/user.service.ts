@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User, UserDto } from './entity/user.entity';
 import { Like, Repository } from 'typeorm';
-import { QueryParamsList } from '../utils/query-params';
+import { QueryParamsList, UserQueryParams } from '../utils/query-params';
 
 @Injectable()
 export class UserService {
@@ -33,18 +33,34 @@ export class UserService {
     return user;
   }
 
-  findAll(queryParams: QueryParamsList): Promise<User[]> {
-    const search = queryParams.params.search;
-    if (!search) {
-      return this.usersRepository.find();
+  async findAll(
+    queryParamsList: QueryParamsList,
+    userQueryParams: UserQueryParams,
+  ): Promise<User[]> {
+    const search = queryParamsList.params.search || '';
+    const sort = userQueryParams.createSort(queryParamsList.params.sort);
+    const order = queryParamsList.createOrder(queryParamsList.params.order);
+
+    let result: User[];
+    try {
+      result = await this.usersRepository.find({
+        where: [
+          { firstName: Like(`%${search}%`) },
+          { lastName: Like(`%${search}%`) },
+          { email: Like(`%${search}%`) },
+        ],
+        order: {
+          [sort]: order,
+        },
+      });
+    } catch (e) {
+      throw UserService.createException(
+        `Couldn't get a list of users: ${e.message}`,
+        HttpStatus.BAD_REQUEST,
+      );
     }
-    return this.usersRepository.find({
-      where: [
-        { firstName: Like(`%${search}%`) },
-        { lastName: Like(`%${search}%`) },
-        { email: Like(`%${search}%`) },
-      ],
-    });
+
+    return result;
   }
 
   //fixme: поправить вывод, чтобы он соответствовал интерфейсу UserInfoDto
@@ -92,7 +108,8 @@ export class UserService {
     }
 
     try {
-      await this.usersRepository.delete(userId);
+      const { affected } = await this.usersRepository.delete(userId);
+      UserService.checkAffected(affected);
     } catch (e) {
       throw new HttpException(
         `Couldn't delete the user: ${e.message}`,
@@ -100,5 +117,11 @@ export class UserService {
       );
     }
     return user;
+  }
+
+  static checkAffected(affected: number) {
+    if (!affected) {
+      throw Error(`The row(-s) hasn't changed`);
+    }
   }
 }
