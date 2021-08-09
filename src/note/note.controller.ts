@@ -13,7 +13,12 @@ import {
 import { Note, NoteDto } from './entity/note.entity';
 import { NoteService } from './note.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { ParamsList, QueryParamsList } from '../utils/query-params';
+import {
+  NoteQueryParams,
+  ParamsList,
+  QueryParamsList,
+  UserQueryParams,
+} from '../utils/query-params';
 
 @Controller('note')
 export class NoteController {
@@ -33,8 +38,13 @@ export class NoteController {
     @Query() query: Record<ParamsList, string>,
   ): Promise<Note[]> {
     const userId = req.user.id;
-    const queryParams = new QueryParamsList(query);
-    return await this.service.getListById(userId, queryParams);
+    const queryParamsList = new QueryParamsList(query);
+    const noteQueryParams = new NoteQueryParams();
+    return await this.service.getListById(
+      userId,
+      queryParamsList,
+      noteQueryParams,
+    );
   }
 
   @UseGuards(JwtAuthGuard)

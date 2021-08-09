@@ -5,7 +5,7 @@ import { Like, Repository } from 'typeorm';
 
 import { NoteSubject, SubjectDto } from './entity/subject.entity';
 import { User } from '../user/entity/user.entity';
-import { QueryParamsList } from '../utils/query-params';
+import { NoteQueryParams, QueryParamsList } from '../utils/query-params';
 
 @Injectable()
 export class SubjectService {
@@ -89,31 +89,39 @@ export class SubjectService {
 
   async getList(
     userId: number,
-    queryParams: QueryParamsList,
+    queryParamsList: QueryParamsList,
+    noteQueryParams: NoteQueryParams,
   ): Promise<NoteSubject[]> {
     const user = await this.getUserById(userId);
-    const search = queryParams.params.search;
 
-    // если параметр не был передан, то возвращаем все subjects этого пользователя
-    if (!search) {
-      return await this.subjectRepository.find({
-        where: { user },
+    const search = queryParamsList.params.search || '';
+    const sort = noteQueryParams.createSort(queryParamsList.params.sort);
+    const order = queryParamsList.createOrder(queryParamsList.params.order);
+
+    let result;
+    try {
+      result = await this.subjectRepository.find({
+        where: [
+          {
+            title: Like(`%${search}%`),
+            user,
+          },
+          {
+            description: Like(`%${search}%`),
+            user,
+          },
+        ],
+        order: {
+          [sort]: order,
+        },
       });
+    } catch (e) {
+      throw new HttpException(
+        `Couldn't get a list of Subjects: ${e.message}`,
+        HttpStatus.BAD_REQUEST,
+      );
     }
-    // если параметр передан возвращаем только совпадения по title и description
-    // TODO: добавить параметры сортировки
-    return await this.subjectRepository.find({
-      where: [
-        {
-          title: Like(`%${search}%`),
-          user,
-        },
-        {
-          description: Like(`%${search}%`),
-          user,
-        },
-      ],
-    });
+    return result;
   }
 
   private async getUserById(id: number): Promise<User> {
