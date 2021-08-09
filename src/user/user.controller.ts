@@ -12,7 +12,11 @@ import {
 import { UserDto, UserInfoDto } from './entity/user.entity';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { ParamsList, QueryParamsList } from '../utils/query-params';
+import {
+  ParamsList,
+  QueryParamsList,
+  UserQueryParams,
+} from '../utils/query-params';
 
 @Controller('user')
 export class UserController {
@@ -27,8 +31,9 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @Get()
   async getAll(@Query() query: Record<ParamsList, string>) {
-    const queryParams = new QueryParamsList(query);
-    return await this.service.findAll(queryParams);
+    const queryParamsList = new QueryParamsList(query);
+    const userQueryParams = new UserQueryParams();
+    return await this.service.findAll(queryParamsList, userQueryParams);
   }
 
   @UseGuards(JwtAuthGuard)

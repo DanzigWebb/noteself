@@ -1,3 +1,21 @@
+// сортировки, возможные для таблицы User
+enum enumValueSortUser {
+  NAME = 'firstName',
+  LASTNAME = 'lastName',
+  EMAIL = 'email',
+  UPDATE = 'updatedAt', // internal_name = url_name
+  CREATE = 'createdAt',
+  ID = 'id',
+}
+// сортировки, возможные для Subject, Notes
+enum enumValueSortNotes {
+  TITLE = 'title',
+  DESCRIPTION = 'description',
+  UPDATE = 'updatedAt', // internal_name = url_name
+  CREATE = 'createdAt',
+  ID = 'id',
+}
+
 // enum для листа сущностей
 enum enumParamsList {
   search = 'q', // internal_name = url_name
@@ -8,6 +26,7 @@ enum enumParamsList {
 enum enumParamsSingle {
   id = 'id',
 }
+// типы возможных параметров
 export type ParamsList = keyof typeof enumParamsList;
 export type ParamsSingle = keyof typeof enumParamsSingle;
 
@@ -36,23 +55,6 @@ export class QueryParamsList extends QueryParams {
     }
   }
 
-  // fixme: сейчас тут хардпривязка к столбцам БД
-  createSort(paramSort: string): string {
-    if (typeof paramSort !== 'undefined') {
-      paramSort = paramSort.toUpperCase();
-    }
-    switch (paramSort) {
-      case 'NAME':
-        return 'firstName';
-      case 'TITLE':
-        return 'title';
-      case 'UPDATE':
-        return 'updatedAt';
-      case 'CREATE':
-      default:
-        return 'createdAt';
-    }
-  }
   createOrder(order: string): 'ASC' | 'DESC' {
     if (typeof order !== 'undefined') {
       order = order.toUpperCase();
@@ -60,6 +62,7 @@ export class QueryParamsList extends QueryParams {
     return order === 'DESC' ? 'DESC' : 'ASC';
   }
 }
+
 export class QueryParamsSingle extends QueryParams {
   constructor(queryParams: IParams) {
     super();
@@ -68,5 +71,36 @@ export class QueryParamsSingle extends QueryParams {
     for (const enumKey of enumKeys) {
       this.params[enumKey] = queryParams[enumParamsSingle[enumKey]];
     }
+  }
+}
+// Only Users
+export class UserQueryParams extends QueryParams {
+  // List & Single
+  createSort(sortParam: string): enumValueSortUser {
+    // если параметр не был передан или передан неверный параметр, то возвращаем столбец Update
+    if (
+      // если параметр не был передан || передан неверный параметр
+      !sortParam ||
+      enumValueSortUser[sortParam.toUpperCase()] === undefined
+    ) {
+      return enumValueSortUser.UPDATE;
+    }
+    return enumValueSortUser[sortParam.toUpperCase()];
+  }
+}
+
+// Subjects And Notes
+export class NoteQueryParams extends QueryParams {
+  // List & Single
+  createSort(sortParam: string): enumValueSortNotes {
+    if (
+      // если параметр не был передан || передан неверный параметр
+      !sortParam ||
+      enumValueSortNotes[sortParam.toUpperCase()] === undefined
+    ) {
+      // возвращаем столбец Update в качестве сортировки по-умолчанию
+      return enumValueSortNotes.UPDATE;
+    }
+    return enumValueSortNotes[sortParam.toUpperCase()];
   }
 }

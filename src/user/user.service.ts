@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User, UserDto } from './entity/user.entity';
 import { Like, Repository } from 'typeorm';
-import { QueryParamsList } from '../utils/query-params';
+import { QueryParamsList, UserQueryParams } from '../utils/query-params';
 
 @Injectable()
 export class UserService {
@@ -33,10 +33,13 @@ export class UserService {
     return user;
   }
 
-  async findAll(queryParams: QueryParamsList): Promise<User[]> {
-    const search = queryParams.params.search || '';
-    const sort = queryParams.createSort(queryParams.params.sort);
-    const order = queryParams.createOrder(queryParams.params.order);
+  async findAll(
+    queryParamsList: QueryParamsList,
+    userQueryParams: UserQueryParams,
+  ): Promise<User[]> {
+    const search = queryParamsList.params.search || '';
+    const sort = userQueryParams.createSort(queryParamsList.params.sort);
+    const order = queryParamsList.createOrder(queryParamsList.params.order);
 
     let result: User[];
     try {

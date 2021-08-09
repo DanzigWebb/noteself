@@ -4,7 +4,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Like, Repository } from 'typeorm';
 import { Note, NoteDto } from './entity/note.entity';
 import { User } from '../user/entity/user.entity';
-import { QueryParamsList } from '../utils/query-params';
+import {
+  NoteQueryParams,
+  QueryParamsList,
+  UserQueryParams,
+} from '../utils/query-params';
 
 @Injectable()
 export class NoteService {
@@ -49,12 +53,14 @@ export class NoteService {
 
   async getListById(
     userId: number,
-    queryParams: QueryParamsList,
+    queryParamsList: QueryParamsList,
+    noteQueryParams: NoteQueryParams,
   ): Promise<Note[]> {
     const user = await this.getUserById(userId);
-    const sort = queryParams.createSort(queryParams.params.sort);
-    const order = queryParams.createOrder(queryParams.params.order);
-    const search = queryParams.params.search || '';
+    // const sort = queryParams.createSort(queryParams.params.sort);
+    const sort = noteQueryParams.createSort(queryParamsList.params.sort);
+    const order = queryParamsList.createOrder(queryParamsList.params.order);
+    const search = queryParamsList.params.search || '';
 
     let result: Note[];
     try {
