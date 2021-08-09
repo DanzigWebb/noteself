@@ -5,6 +5,7 @@ import { Like, Repository } from 'typeorm';
 import { Note, NoteDto } from './entity/note.entity';
 import { User } from '../user/entity/user.entity';
 import { QueryParamsList } from '../utils/query-params';
+import { SubjectService } from '../subject/subject.service';
 
 @Injectable()
 export class NoteService {
@@ -111,11 +112,12 @@ export class NoteService {
     }
 
     try {
-      await this.noteRepository.delete(note);
+      const { affected } = await this.noteRepository.delete(note.id);
+      UserService.checkAffected(affected);
     } catch (e) {
       throw new HttpException(
         `Couldn't delete the note: ${e.message}`,
-        HttpStatus.FORBIDDEN,
+        HttpStatus.BAD_REQUEST,
       );
     }
     return note;
