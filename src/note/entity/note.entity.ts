@@ -21,7 +21,7 @@ export class Note {
   description: string;
 
   @ManyToOne(() => NoteSubject, (subject) => subject.id)
-  subject: NoteSubject;
+  subjectId: number | null = null;
 
   @ManyToOne(() => User, (user) => user.notes, {
     onDelete: 'CASCADE',
@@ -39,5 +39,7 @@ export interface NoteDto {
   id: number;
   title: string;
   description: string;
-  subject: NoteSubject;
+  subjectId: number | null;
+  // createdAt: Date;
+  // updatedAt: Date;
 }

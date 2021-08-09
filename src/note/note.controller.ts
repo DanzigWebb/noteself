@@ -26,7 +26,7 @@ export class NoteController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  async create(@Request() req, @Body() dto: NoteDto): Promise<Note> {
+  async create(@Request() req, @Body() dto: NoteDto): Promise<NoteDto> {
     const userId = req.user.id;
     return this.service.create(userId, dto);
   }

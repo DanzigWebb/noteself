@@ -17,31 +17,49 @@ export class NoteService {
     private subjectService: SubjectService,
   ) {}
 
-  async create(userId: number, n: NoteDto): Promise<Note> {
+  async create(userId: number, n: NoteDto): Promise<NoteDto> {
     const user = await this.getUserById(userId);
-    let subject: NoteSubject = null;
-    if (n.subject) {
-      subject = await this.getSubjectById(userId, +n.subject);
-    }
 
     if (!user) {
       throw new HttpException(`User not found`, HttpStatus.NOT_FOUND);
     }
 
-    const note = new Note();
-    note.title = n.title;
-    note.description = n.description;
-    note.subject = subject;
-    note.user = user;
+    const entity = new Note();
+    entity.title = n.title;
+    entity.description = n.description;
 
-    const entity = this.noteRepository.create(note);
-    return await this.noteRepository.save(entity);
+    // проверяем, что в БД и у данного пользователя есть нужный Subject
+    // и если есть, то добавляем его в entity
+    if (n.subjectId) {
+      try {
+        const subject = await this.getSubjectById(userId, +n.subjectId);
+        entity.subjectId = subject.id;
+      } catch (e) {
+        throw new HttpException(
+          `Couldn't get a subject with id ${n.subjectId}: ${e.message}`,
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+    }
+    entity.user = user;
+
+    // const entity = this.noteRepository.create(entity);
+    const note = await this.noteRepository.save(entity);
+
+    return {
+      id: note.id,
+      title: note.title,
+      description: note.description,
+      subjectId: note.subjectId,
+    };
   }
 
   async getOne(userId: number, noteId: number): Promise<NoteDto> {
     const user = await this.getUserById(userId);
     const note = await this.noteRepository.findOne({
-      relations: ['subject'],
+      loadRelationIds: {
+        relations: ['subjectId'],
+      },
       where: { id: noteId, user },
     });
 
@@ -52,7 +70,12 @@ export class NoteService {
       );
     }
 
-    return note;
+    return {
+      id: note.id,
+      title: note.title,
+      subjectId: note.subjectId,
+      description: note.description,
+    };
   }
 
   async getListById(
@@ -65,10 +88,12 @@ export class NoteService {
     const order = queryParamsList.createOrder(queryParamsList.params.order);
     const search = queryParamsList.params.search || '';
 
-    let result: Note[];
+    let notes: Note[];
     try {
-      result = await this.noteRepository.find({
-        relations: ['subject'],
+      notes = await this.noteRepository.find({
+        loadRelationIds: {
+          relations: ['subjectId'],
+        },
         where: [
           {
             title: Like(`%${search}%`),
@@ -89,7 +114,15 @@ export class NoteService {
         HttpStatus.BAD_REQUEST,
       );
     }
-    return result;
+    return notes.map((note) => {
+      return {
+        id: note.id,
+        title: note.title,
+        description: note.description,
+        subjectId: note.subjectId,
+      };
+    });
+    // return;
   }
 
   async updateByID(
