@@ -36,7 +36,7 @@ export class NoteController {
   async getList(
     @Request() req,
     @Query() query: Record<ParamsList, string>,
-  ): Promise<Note[]> {
+  ): Promise<NoteDto[]> {
     const userId = req.user.id;
     const queryParamsList = new QueryParamsList(query);
     const noteQueryParams = new NoteQueryParams();

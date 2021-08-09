@@ -52,21 +52,15 @@ export class NoteService {
       );
     }
 
-    return {
-      id: note.id,
-      title: note.title,
-      subject: note.subject,
-      description: note.description,
-    };
+    return note;
   }
 
   async getListById(
     userId: number,
     queryParamsList: QueryParamsList,
     noteQueryParams: NoteQueryParams,
-  ): Promise<Note[]> {
+  ): Promise<NoteDto[]> {
     const user = await this.getUserById(userId);
-    // const sort = queryParams.createSort(queryParams.params.sort);
     const sort = noteQueryParams.createSort(queryParamsList.params.sort);
     const order = queryParamsList.createOrder(queryParamsList.params.order);
     const search = queryParamsList.params.search || '';
@@ -74,6 +68,7 @@ export class NoteService {
     let result: Note[];
     try {
       result = await this.noteRepository.find({
+        relations: ['subject'],
         where: [
           {
             title: Like(`%${search}%`),
