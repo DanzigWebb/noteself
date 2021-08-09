@@ -76,11 +76,12 @@ export class SubjectService {
     }
 
     try {
-      await this.subjectRepository.delete(subject);
+      const { affected } = await this.subjectRepository.delete(subject.id);
+      UserService.checkAffected(affected);
     } catch (e) {
       throw new HttpException(
         `Couldn't delete the subject: ${e.message}`,
-        HttpStatus.FORBIDDEN,
+        HttpStatus.BAD_REQUEST,
       );
     }
     return subject;

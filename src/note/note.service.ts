@@ -4,11 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Like, Repository } from 'typeorm';
 import { Note, NoteDto } from './entity/note.entity';
 import { User } from '../user/entity/user.entity';
-import {
-  NoteQueryParams,
-  QueryParamsList,
-  UserQueryParams,
-} from '../utils/query-params';
+import { NoteQueryParams, QueryParamsList } from '../utils/query-params';
 
 @Injectable()
 export class NoteService {
@@ -123,11 +119,12 @@ export class NoteService {
     }
 
     try {
-      await this.noteRepository.delete(note);
+      const { affected } = await this.noteRepository.delete(note.id);
+      UserService.checkAffected(affected);
     } catch (e) {
       throw new HttpException(
         `Couldn't delete the note: ${e.message}`,
-        HttpStatus.FORBIDDEN,
+        HttpStatus.BAD_REQUEST,
       );
     }
     return note;
