@@ -1,4 +1,5 @@
 import {
+  AfterUpdate,
   Column,
   CreateDateColumn,
   Entity,
@@ -21,7 +22,7 @@ export class Note {
   description: string;
 
   @ManyToOne(() => NoteSubject, (subject) => subject.id)
-  subjectId: number | null = null;
+  subject: NoteSubject = null;
 
   @ManyToOne(() => User, (user) => user.notes, {
     onDelete: 'CASCADE',
@@ -36,10 +37,7 @@ export class Note {
 }
 
 export interface NoteDto {
-  id: number;
   title: string;
   description: string;
-  subjectId: number | null;
-  // createdAt: Date;
-  // updatedAt: Date;
+  subject: number | null;
 }

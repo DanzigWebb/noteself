@@ -17,7 +17,7 @@ export class NoteService {
     private subjectService: SubjectService,
   ) {}
 
-  async create(userId: number, n: NoteDto): Promise<NoteDto> {
+  async create(userId: number, dto: NoteDto): Promise<Note> {
     const user = await this.getUserById(userId);
 
     if (!user) {
@@ -25,64 +25,31 @@ export class NoteService {
     }
 
     const entity = new Note();
-    entity.title = n.title;
-    entity.description = n.description;
-
-    // проверяем, что в БД и у данного пользователя есть нужный Subject
-    // и если есть, то добавляем его в entity
-    if (n.subjectId) {
-      try {
-        const subject = await this.getSubjectById(userId, +n.subjectId);
-        entity.subjectId = subject.id;
-      } catch (e) {
-        throw new HttpException(
-          `Couldn't get a subject with id ${n.subjectId}: ${e.message}`,
-          HttpStatus.BAD_REQUEST,
-        );
-      }
-    }
+    entity.title = dto.title;
+    entity.description = dto.description;
     entity.user = user;
+
+    if (dto.subject) {
+      entity.subject = await this.getSubjectById(userId, +dto.subject);
+    }
 
     // const entity = this.noteRepository.create(entity);
     const note = await this.noteRepository.save(entity);
-
-    return {
-      id: note.id,
-      title: note.title,
-      description: note.description,
-      subjectId: note.subjectId,
-    };
+    return note;
   }
 
-  async getOne(userId: number, noteId: number): Promise<NoteDto> {
+  async getOne(userId: number, noteId: number): Promise<Note> {
     const user = await this.getUserById(userId);
-    const note = await this.noteRepository.findOne({
-      loadRelationIds: {
-        relations: ['subjectId'],
-      },
-      where: { id: noteId, user },
-    });
+    const note = await this.getNoteById(noteId, user);
 
-    if (!note) {
-      throw new HttpException(
-        `Not found Note with id: ${noteId}`,
-        HttpStatus.NOT_FOUND,
-      );
-    }
-
-    return {
-      id: note.id,
-      title: note.title,
-      subjectId: note.subjectId,
-      description: note.description,
-    };
+    return note;
   }
 
   async getListById(
     userId: number,
     queryParamsList: QueryParamsList,
     noteQueryParams: NoteQueryParams,
-  ): Promise<NoteDto[]> {
+  ): Promise<Note[]> {
     const user = await this.getUserById(userId);
     const sort = noteQueryParams.createSort(queryParamsList.params.sort);
     const order = queryParamsList.createOrder(queryParamsList.params.order);
@@ -92,7 +59,7 @@ export class NoteService {
     try {
       notes = await this.noteRepository.find({
         loadRelationIds: {
-          relations: ['subjectId'],
+          relations: ['subject'],
         },
         where: [
           {
@@ -114,15 +81,7 @@ export class NoteService {
         HttpStatus.BAD_REQUEST,
       );
     }
-    return notes.map((note) => {
-      return {
-        id: note.id,
-        title: note.title,
-        description: note.description,
-        subjectId: note.subjectId,
-      };
-    });
-    // return;
+    return notes;
   }
 
   async updateByID(
@@ -131,39 +90,19 @@ export class NoteService {
     dto: NoteDto,
   ): Promise<Note> {
     const user = await this.getUserById(userId);
-    const note = await this.noteRepository.findOne({
-      where: { id: noteId, user },
-    });
+    const entity = await this.getNoteById(noteId, user);
 
-    if (!note) {
-      const message = `Not found Note with id: ${noteId}`;
-      throw new HttpException(message, HttpStatus.NOT_FOUND);
+    if (dto.subject) {
+      entity.subject = await this.getSubjectById(userId, +dto.subject);
     }
 
-    Object.assign(note, dto);
-    await this.noteRepository.save(note);
-    return note;
+    Object.assign(entity, dto);
+    return await this.noteRepository.save(entity);
   }
 
-  private async getUserById(id: number): Promise<User> {
-    return await this.userService.findOneById(id);
-  }
-  private async getSubjectById(
-    userId: number,
-    subjectId: number,
-  ): Promise<NoteSubject> {
-    return await this.subjectService.getOne(userId, subjectId);
-  }
   async deleteById(userId: number, noteId: number): Promise<Note> {
     const user = await this.getUserById(userId);
-    const note = await this.noteRepository.findOne({
-      where: { id: noteId, user },
-    });
-
-    if (!note) {
-      const message = `Not found Note with id: ${noteId}`;
-      throw new HttpException(message, HttpStatus.NOT_FOUND);
-    }
+    const note = await this.getNoteById(noteId, user);
 
     try {
       const { affected } = await this.noteRepository.delete(note.id);
@@ -175,5 +114,47 @@ export class NoteService {
       );
     }
     return note;
+  }
+
+  private async getUserById(id: number): Promise<User> {
+    return await this.userService.findOneById(id);
+  }
+  private async getSubjectById(
+    userId: number,
+    subjectId: number,
+  ): Promise<NoteSubject> {
+    try {
+      return await this.subjectService.getOne(userId, subjectId);
+    } catch (e) {
+      throw new HttpException(
+        `Couldn't get a subject with id ${subjectId}: ${e.message}`,
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  private async getNoteById(noteId: number, user: User): Promise<Note> {
+    const options = {
+      loadRelationIds: {
+        relations: ['subject'],
+      },
+      where: { id: noteId, user },
+    };
+
+    try {
+      const note = await this.noteRepository.findOne(options);
+      NoteService.checkIfNoteExist(note);
+      return note;
+    } catch (e) {
+      throw new HttpException(
+        `Couldn't get a note with id: ${noteId}: ${e.message}`,
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+  static checkIfNoteExist(note): void {
+    if (!note) {
+      throw new HttpException(`The Note wasn't found`, HttpStatus.NOT_FOUND);
+    }
   }
 }

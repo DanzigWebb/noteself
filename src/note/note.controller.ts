@@ -26,7 +26,7 @@ export class NoteController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  async create(@Request() req, @Body() dto: NoteDto): Promise<NoteDto> {
+  async create(@Request() req, @Body() dto: NoteDto): Promise<Note> {
     const userId = req.user.id;
     return this.service.create(userId, dto);
   }
@@ -36,7 +36,7 @@ export class NoteController {
   async getList(
     @Request() req,
     @Query() query: Record<ParamsList, string>,
-  ): Promise<NoteDto[]> {
+  ): Promise<Note[]> {
     const userId = req.user.id;
     const queryParamsList = new QueryParamsList(query);
     const noteQueryParams = new NoteQueryParams();
@@ -49,7 +49,7 @@ export class NoteController {
 
   @UseGuards(JwtAuthGuard)
   @Get(':id')
-  async getOne(@Request() req, @Param('id') id: string) {
+  async getOne(@Request() req, @Param('id') id: string): Promise<Note> {
     const userId = req.user.id;
     return await this.service.getOne(userId, +id);
   }
@@ -60,9 +60,13 @@ export class NoteController {
     @Request() req,
     @Body() dto: NoteDto,
     @Param('id') noteId: string,
-  ): Promise<Note> {
+  ): Promise<{ message: string; note: Note }> {
     const userId = req.user.id;
-    return await this.service.updateByID(userId, +noteId, dto);
+    const updatedNote = await this.service.updateByID(userId, +noteId, dto);
+    return {
+      message: `Note was updated successfully`,
+      note: updatedNote,
+    };
   }
 
   @UseGuards(JwtAuthGuard)
