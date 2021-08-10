@@ -74,7 +74,6 @@ export class SubjectService {
       const message = `Not found Subject with id: ${subjectId}`;
       throw new HttpException(message, HttpStatus.NOT_FOUND);
     }
-    await this.subjectRepository.delete(subject);
 
     try {
       const { affected } = await this.subjectRepository.delete(subject.id);
