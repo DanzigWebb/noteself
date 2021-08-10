@@ -60,13 +60,10 @@ export class NoteController {
     @Request() req,
     @Body() dto: NoteDto,
     @Param('id') noteId: string,
-  ): Promise<{ message: string; note: Note }> {
+  ): Promise<Note> {
     const userId = req.user.id;
     const updatedNote = await this.service.updateByID(userId, +noteId, dto);
-    return {
-      message: `Note was updated successfully`,
-      note: updatedNote,
-    };
+    return updatedNote;
   }
 
   @UseGuards(JwtAuthGuard)
