@@ -1,4 +1,5 @@
 import {
+  AfterUpdate,
   Column,
   CreateDateColumn,
   Entity,
@@ -7,6 +8,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { User } from '../../user/entity/user.entity';
+import { NoteSubject } from '../../subject/entity/subject.entity';
 
 @Entity()
 export class Note {
@@ -19,8 +21,8 @@ export class Note {
   @Column()
   description: string;
 
-  @Column()
-  subject: string;
+  @ManyToOne(() => NoteSubject, (subject) => subject.id)
+  subject: NoteSubject = null;
 
   @ManyToOne(() => User, (user) => user.notes, {
     onDelete: 'CASCADE',
@@ -37,5 +39,5 @@ export class Note {
 export interface NoteDto {
   title: string;
   description: string;
-  subject: string;
+  subject: number | null;
 }

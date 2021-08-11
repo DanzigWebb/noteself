@@ -49,7 +49,7 @@ export class NoteController {
 
   @UseGuards(JwtAuthGuard)
   @Get(':id')
-  async getOne(@Request() req, @Param('id') id: string) {
+  async getOne(@Request() req, @Param('id') id: string): Promise<Note> {
     const userId = req.user.id;
     return await this.service.getOne(userId, +id);
   }
@@ -62,7 +62,8 @@ export class NoteController {
     @Param('id') noteId: string,
   ): Promise<Note> {
     const userId = req.user.id;
-    return await this.service.updateByID(userId, +noteId, dto);
+    const updatedNote = await this.service.updateByID(userId, +noteId, dto);
+    return updatedNote;
   }
 
   @UseGuards(JwtAuthGuard)
