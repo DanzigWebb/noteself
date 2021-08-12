@@ -10,15 +10,19 @@ import { UserModule } from './user/user.module';
 import { SubjectModule } from './subject/subject.module';
 import { NoteSubject } from './subject/entity/subject.entity';
 
+console.log({
+  host: '0.0.0.0',
+});
+
 @Module({
   imports: [
     NoteModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'localhost',
+      host: 'postgres',
       port: 5432,
       username: 'noteself',
-      password: '',
+      password: 'noteself',
       database: 'noteself',
       entities: [User, Note, NoteSubject],
       synchronize: true,
