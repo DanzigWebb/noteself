@@ -9,14 +9,15 @@ import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { SubjectModule } from './subject/subject.module';
 import { NoteSubject } from './subject/entity/subject.entity';
-
-console.log({
-  host: '0.0.0.0',
-});
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
     NoteModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'build'),
+    }),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'postgres',
