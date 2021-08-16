@@ -3,8 +3,7 @@ version: '3.7'
 services:
   noteself:
     container_name: noteself
-    build:
-      context: .
+    image: danzig12/noteself:latest
     ports:
       - "3000:3000"
     depends_on:

@@ -7,11 +7,11 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install app dependencies
-RUN npm install
+RUN npm install --only=production
 
 COPY . .
 
-RUN npm run build
+CMD [ "npm", "run", "build" ]
 
 FROM node:16-alpine3.11
 
